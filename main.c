@@ -1,13 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <time.h>
+
+
 
 #define BEGINNER_SIZE 10
 #define INTERMEDIATE_SIZE 16
 #define EXPERT_SIZE 24
 #define BEGINNER_MINES 10
 #define INTERMEDIATE_MINES 40
-#define EXPERT_MINES 99
+#define EXPERT_MINES 200
+#define MAX_ENTRIES 10
+#define NAME_LENGTH 20
+
+// Define the structure to hold player information
+typedef struct {
+    char name[NAME_LENGTH];
+    double timeTaken;
+} PlayerInfo;
+
+// Function prototypes
+void updateLeaderboard(PlayerInfo leaderboard[], int *numEntries, const char *name, double timeTaken);
+void displayLeaderboard(const PlayerInfo leaderboard[], int numEntries);
+void saveLeaderboard(const PlayerInfo leaderboard[], int numEntries);
+void loadLeaderboard(PlayerInfo leaderboard[], int *numEntries);
 
 void initializeBoard(char ***board, int size, int mines) {
     // Initialize the seed for random number generation
@@ -141,11 +158,30 @@ int main() {
     char difficulty;
     int row, col;
     int gameOver = 0;
-    int hitMine = 0; // To track if a mine has been hit
+    int hitMine = 0;  // To track if a mine has been hit
+    char playerName[10];
 
-    printf("Select difficulty level (B=Beginner, I=Intermediate, E=Expert): ");
+    printf("what's your name ");
+    scanf("%s",&playerName[0]);
+
+
+    PlayerInfo leaderboard[MAX_ENTRIES];
+    int numEntries = 0;
+
+     loadLeaderboard(leaderboard, &numEntries);
+
+
+    clock_t startTime, endTime;
+
+    printf("Select difficulty level (B=Beginner, I=Intermediate, E=Expert, C=Custom): ");
     scanf(" %c", &difficulty);
 
+    if (difficulty == 'C' || difficulty == 'c') {
+    printf("Enter custom board size: ");
+    scanf("%d", &size);
+    printf("Enter custom number of mines: ");
+    scanf("%d", &mines);
+    }else {
     // Set the size and number of mines based on the selected difficulty level
     switch (difficulty) {
         case 'B':
@@ -167,11 +203,12 @@ int main() {
             printf("Invalid difficulty level.\n");
             return 1;
     }
-
+    }
     // Initialize the board with mines and a display board for the player
     initializeBoard(&board, size, mines);
     initializeBoard(&displayBoard, size, 0); // Initialize with 0 mines for display
 
+    startTime = clock();
     // Game loop
     while (!gameOver) {
         printBoard(board, displayBoard, size); // Print the display board
@@ -211,6 +248,7 @@ int main() {
             if (board[row][col] == 'm') {
                 gameOver = 1;
                 hitMine = 1; // A mine was hit
+
                 // Reveal all mines
                 for (int i = 0; i < size; i++) {
                     for (int j = 0; j < size; j++) {
@@ -235,18 +273,85 @@ int main() {
         if (gameOver) {
              printBoard(board, displayBoard, size); // Print the final board with mines revealed
             if (hitMine) {
-                printf("You hit a mine! Game over.\n");
+                printf("Game Over! You hit a mine at %d,%d.\n", row, col);
             } else {
                 printf("Congratulations! You've cleared all the mines!\n");
             }
         }
     }
 
+    endTime = clock();
+    double timeTaken = ((double)(endTime - startTime)) / CLOCKS_PER_SEC; // Calculate elapsed time in seconds
+    printf("Time taken: %.2f seconds\n", timeTaken);
+
     // Clean up memory
     freeBoard(board, size);
     freeBoard(displayBoard, size);
 
 
+     // After the game is over, update the leaderboard
+    updateLeaderboard(leaderboard, &numEntries, playerName, timeTaken);
+
+    // Display the leaderboard
+    displayLeaderboard(leaderboard, numEntries);
+
+    // Save the updated leaderboard to file
+    saveLeaderboard(leaderboard, numEntries);
 
     return 0;
+}
+
+// Update the leaderboard with the new player information
+void updateLeaderboard(PlayerInfo leaderboard[], int *numEntries, const char *name, double timeTaken) {
+    // Insert the new player's information into the leaderboard
+    int i;
+    for (i = 0; i < *numEntries; i++) {
+        if (timeTaken < leaderboard[i].timeTaken) {
+            // Shift entries to make room for the new player
+            for (int j = *numEntries - 1; j > i; j--) {
+                leaderboard[j] = leaderboard[j - 1];
+            }
+            // Insert the new player
+            strcpy(leaderboard[i].name, name);
+            leaderboard[i].timeTaken = timeTaken;
+            (*numEntries)++;
+            break;
+        }
+    }
+    // If the new player has the worst time, but there's still room in the leaderboard
+    if (i == *numEntries && *numEntries < MAX_ENTRIES) {
+        strcpy(leaderboard[i].name, name);
+        leaderboard[i].timeTaken = timeTaken;
+        (*numEntries)++;
+    }
+}
+
+// Display the leaderboard
+void displayLeaderboard(const PlayerInfo leaderboard[], int numEntries) {
+    printf("\nLeaderboard:\n");
+    for (int i = 0; i < numEntries; i++) {
+        printf("%d. %s - %.2f seconds\n", i + 1, leaderboard[i].name, leaderboard[i].timeTaken);
+    }
+}
+
+// Save the leaderboard to a file
+void saveLeaderboard(const PlayerInfo leaderboard[], int numEntries) {
+    FILE *file = fopen("leaderboard.txt", "w");
+    if (file != NULL) {
+        for (int i = 0; i < numEntries; i++) {
+            fprintf(file, "%s %.2f\n", leaderboard[i].name, leaderboard[i].timeTaken);
+        }
+        fclose(file);
+    }
+}
+
+// Load the leaderboard from a file
+void loadLeaderboard(PlayerInfo leaderboard[], int *numEntries) {
+    FILE *file = fopen("leaderboard.txt", "r");
+    if (file != NULL) {
+        while (*numEntries < MAX_ENTRIES && fscanf(file, "%s %lf", leaderboard[*numEntries].name, &leaderboard[*numEntries].timeTaken) == 2) {
+            (*numEntries)++;
+        }
+        fclose(file);
+    }
 }
