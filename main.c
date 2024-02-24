@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define BEGINNER_SIZE 9
+#define BEGINNER_SIZE 10
 #define INTERMEDIATE_SIZE 16
 #define EXPERT_SIZE 24
 #define BEGINNER_MINES 10
-#define INTERMEDIATE_MINES 50
-#define EXPERT_MINES 100
+#define INTERMEDIATE_MINES 40
+#define EXPERT_MINES 99
+
 void initializeBoard(char ***board, int size, int mines) {
     // Initialize the seed for random number generation
     srand(time(NULL));
@@ -32,27 +33,37 @@ void initializeBoard(char ***board, int size, int mines) {
         }
     }
 }
-
 void printBoard(char **board, char **displayBoard, int size) {
+    // Determine the maximum number of digits for row and column indices
+    int maxDigits = 1;
+    int temp = size - 1;
+    while (temp >= 10) {
+        temp /= 10;
+        maxDigits++;
+    }
+
+    // Calculate the maximum width needed for any content in a cell
+    int maxCellWidth = maxDigits * 2 + 3; // For "[%0*d:%0*d]" pattern
+
+    // Print the board
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             if (displayBoard[i][j] == '0') {
                 // Cell is unrevealed, print its coordinates
-                printf("[%d:%d]", i, j);
-            } else if (displayBoard[i][j] == '*') {
-                // Mine has been revealed, print an asterisk
-                printf("  *  ");
-            } else if (displayBoard[i][j] == ' ') {
-                // Empty cell with no adjacent mines, print a space
-                printf("     ");
+                printf("[%*d:%*d]", maxDigits, i, maxDigits, j);
             } else {
-                // Cell with adjacent mines, print the count
-                printf("  %c  ", displayBoard[i][j]);
+                // Calculate padding for centering
+                int padding = (maxCellWidth - 3) / 2;
+
+                // Print content centered within square brackets
+                printf("[%*s%*c%*s]", padding, "", 1, displayBoard[i][j], padding, "");
             }
         }
         printf("\n");
     }
 }
+
+
 
 
 void freeBoard(char **board, int size) {
