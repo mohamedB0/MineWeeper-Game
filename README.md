@@ -1,4 +1,6 @@
 # Minesweeper Game
+![image](https://github.com/mohamedB0/GUI_GTK4/assets/115374122/9e46e913-468d-4eeb-aa73-9a664fb74df9)
+
 
 This Minesweeper game is a console-based version of the classic puzzle game. The player's goal is to clear a rectangular board containing hidden "mines" without detonating any of them, using clues about the number of neighboring mines in each field.
 
