@@ -41,7 +41,7 @@ After compiling, you can start the game by running:
 
 ## How to Play
 
-1. **Select Difficulty**: At the start of the game, choose a difficulty level (`B` for Beginner, `I` for Intermediate, `E` for Expert).
+1. **Select Difficulty**: At the start of the game, choose a difficulty level (`B` for Beginner, `I` for Intermediate, `E` for Expert) or 'C' for custom level.
 2. **Reveal Cells**: Enter row and column numbers to reveal a cell (e.g., `3 4`).
 3. **Place/Remove Flags**: Enter `f` followed by row and column numbers to place or remove a flag on a cell (e.g., `f 3 4`). Flags can be used to mark cells you suspect contain mines.
 4. **Winning the Game**: The game is won by revealing all cells that do not contain mines.
