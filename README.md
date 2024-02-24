@@ -8,10 +8,12 @@ This Minesweeper game is a console-based version of the classic puzzle game. The
 ## Features
 
 - Three difficulty levels: Beginner, Intermediate, and Expert.
+- Custom difficulty level option to set board size and number of mines.
 - Ability to place flags on cells where mines are suspected.
 - Reveals adjacent cells automatically when a cell with zero adjacent mines is revealed.
 - Game over detection when a mine is revealed.
 - Win detection when all non-mine cells are revealed.
+- Leaderboard feature to track player's completion times.
 
 ## Getting Started
 
