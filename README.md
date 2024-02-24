@@ -57,5 +57,5 @@ Feel free to fork this project and submit pull requests if you have suggestions 
 
 ## License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project is open-source and available
 
